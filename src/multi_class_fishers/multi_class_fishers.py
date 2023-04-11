@@ -180,6 +180,8 @@ def multiclass_fisher_exact(table: Union[List[list], np.array],
         elif nan_policy == 'assume-zero':
             logging.warning(f'{nan_policy=} and array contains NaN values, assuming these are 0')
             table[np.isnan(table)] = 0
+    if not np.any(table < 5):
+        logging.warning('Fishers should only be used when there are counts in the matrix with less than 5 counts')
     pval = calculate_matrix_pval(table.astype(int))
     tables = get_possible_tables(table)
     p_values = []
