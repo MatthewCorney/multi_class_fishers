@@ -40,7 +40,7 @@ This package is distributed under the MIT License. Please see the LICENSE file f
 
 # Example
 ```
-pip install multiclass-fisher-exact
+pip install git+https://github.com/MatthewCorney/multi_class_fishers.git
 ```
 
 ```
