@@ -18,5 +18,5 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/MatthewCorney/permuted_brunner_munzel"
-"Bug Tracker" = "https://github.com/MatthewCorney/permuted_brunner_munzel"
+"Homepage" = "https://github.com/MatthewCorney/multi_class_fishers"
+"Bug Tracker" = "https://github.com/MatthewCorney/multi_class_fishers"
