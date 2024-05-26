@@ -8,6 +8,8 @@ from typing import Tuple
 from constraint import Problem
 from decimal import Decimal
 
+logging.basicConfig(format="[%(levelname)s] %(asctime)s %(message)s", level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def calculate_matrix_pval(table: np.ndarray) -> float:
     """
@@ -152,36 +154,36 @@ def multiclass_fisher_exact(table: Union[List[list], np.array],
     """
     # if not passed a np.array
     if isinstance(table, list):
-        logging.debug('Passed a list, converting to numpy array')
+        logger.debug('Passed a list, converting to numpy array')
         table = np.array(table)
     # if not symmetrical
     if table.shape[0] != table.shape[1]:
-        logging.error(f'Matrix has shape of {table.shape}, data must be symmetrical')
+        logger.error(f'Matrix has shape of {table.shape}, data must be symmetrical')
         raise ValueError
     # warning that this calculation is slow
     if table.shape[0] == 4:
-        logging.warning('Matrices of 4 rows/columns are slow to run')
+        logger.warning('Matrices of 4 rows/columns are slow to run')
     # only certain dimensions are supported
     if table.shape[0] not in [2, 3, 4]:
-        logging.warning(
+        logger.warning(
             f'Currently only Matrices of {[2, 3, 4]} rows/columns are supported and you passed {table.shape}')
     # handling of negative values
     if np.any(table < 0):
-        logging.error("All values in `table` must be non-negative.")
+        logger.error("All values in `table` must be non-negative.")
         raise ValueError
     # NaN handling
     if np.any(table == np.nan):
         if nan_policy == 'raise':
-            logging.error(f'{nan_policy=} and array contains NaN values')
+            logger.error(f'{nan_policy=} and array contains NaN values')
             raise ValueError
         elif nan_policy == 'propagate':
-            logging.warning(f'{nan_policy=} and array contains NaN values')
+            logger.warning(f'{nan_policy=} and array contains NaN values')
             raise (np.nan, np.nan)
         elif nan_policy == 'assume-zero':
-            logging.warning(f'{nan_policy=} and array contains NaN values, assuming these are 0')
+            logger.warning(f'{nan_policy=} and array contains NaN values, assuming these are 0')
             table[np.isnan(table)] = 0
     if not np.any(table < 5):
-        logging.warning('Fishers should only be used when there are counts in the matrix with less than 5 counts')
+        logger.warning('Fishers should only be used when there are counts in the matrix with less than 5 counts')
     pval = calculate_matrix_pval(table.astype(int))
     tables = get_possible_tables(table)
     p_values = []
@@ -192,18 +194,18 @@ def multiclass_fisher_exact(table: Union[List[list], np.array],
     if alternative == 'greater':
         p_values_allowed = list(set([x for x in p_values if x <= pval]))
         final_pval = np.sum(p_values_allowed)
-        logging.warning(f'It is recommended to use two-sided rather than {alternative}')
+        logger.warning(f'It is recommended to use two-sided rather than {alternative}')
     # for less add on those p values less than the observed
     elif alternative == 'less':
         p_values_allowed = list(set([x for x in p_values if x >= pval]))
         final_pval = np.sum(p_values_allowed)
-        logging.warning(f'It is recommended to use two-sided rather than {alternative}')
+        logger.warning(f'It is recommended to use two-sided rather than {alternative}')
     # for two_sided add on those p values greater on either side that are more extreme
     elif alternative == 'two-sided':
         p_values_allowed = [x for x in p_values if x <= pval]
         final_pval = np.sum(p_values_allowed)
     else:
-        logging.error(f'{alternative=} passed, must be one of {Literal["two-sided", "less", "greater"]}')
+        logger.error(f'{alternative=} passed, must be one of {Literal["two-sided", "less", "greater"]}')
         raise ValueError
     odds_ratio = calculate_odds_ratio(table)
-    return odds_ratio, final_pval
+    return odds_ratio, float(final_pval)

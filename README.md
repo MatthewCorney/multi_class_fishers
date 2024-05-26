@@ -6,7 +6,7 @@ currently, matrix's of 2x2, 3x3 and 4x4 are supported
 
 The function works by calculating the pvalue of the provided matrix,
 and all the possible corresponding matrixes which still preserve row and column sums
-this is achived by backtracking
+This is achieved by backtracking
 
 # Dependencies
 The function requires the following Python packages:
