@@ -11,6 +11,7 @@ from decimal import Decimal
 logging.basicConfig(format="[%(levelname)s] %(asctime)s %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 def calculate_matrix_pval(table: np.ndarray) -> float:
     """
     Calculates the p-value corresponding to the likelihood of observing the given distribution.
