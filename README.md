@@ -44,7 +44,7 @@ pip install git+https://github.com/MatthewCorney/multi_class_fishers.git
 ```
 
 ```
-from multi_class_fishers import multi_class_fishers
+from multi_class_fishers.multi_class_fishers import multiclass_fisher_exact
 
 # create a 3x3 symmetrical contingency table of counts
 table=np.array([[1, 9, 12],
