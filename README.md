@@ -1,4 +1,10 @@
-# Introduction
+# Mult Class Fishers
+[![Tests](https://github.com/MatthewCorney/multi_class_fishers/actions/workflows/tests.yml/badge.svg)](https://github.com/MatthewCorney/multi_class_fishers/actions)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+## Introduction
 This package provides a function multiclass_fisher_exact to run the Fisher's exact test on a symmetrical contingency table of counts. 
 The function takes either a n-dimensional array as input and returns a tuple containing the calculated odds ratio and p-value.
 
@@ -8,7 +14,7 @@ The function works by calculating the pvalue of the provided matrix,
 and all the possible corresponding matrixes which still preserve row and column sums
 This is achieved by backtracking
 
-# Dependencies
+## Dependencies
 The function requires the following Python packages:
 
 - numpy
@@ -16,7 +22,7 @@ The function requires the following Python packages:
 - python-constraint
 - Decimal
 
-# Usage
+## Usage
 The function takes three parameters:
 
 - table: The symmetric contingency table of counts. It can be a list of lists or a numpy array.
@@ -38,7 +44,7 @@ If 'raise', the function will raise an error if NaN values are present in the in
 License
 This package is distributed under the MIT License. Please see the LICENSE file for details.
 
-# Example
+## Example
 ```
 pip install git+https://github.com/MatthewCorney/multi_class_fishers.git
 ```
