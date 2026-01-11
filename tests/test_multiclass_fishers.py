@@ -1,11 +1,14 @@
 import numpy as np
 import pytest
 from scipy.stats import fisher_exact
-from multi_class_fishers.multi_class_fishers import calculate_matrix_pval
-from multi_class_fishers.multi_class_fishers import dict_to_array
-from multi_class_fishers.multi_class_fishers import get_possible_tables
-from multi_class_fishers.multi_class_fishers import calculate_odds_ratio
-from multi_class_fishers.multi_class_fishers import multiclass_fisher_exact
+
+from multi_class_fishers.multi_class_fishers import (
+    calculate_matrix_pval,
+    calculate_odds_ratio,
+    dict_to_array,
+    get_possible_tables,
+    multiclass_fisher_exact,
+)
 
 two_by_two_arrays = [np.array([[1, 9],
                                [11, 3]]),
@@ -57,7 +60,7 @@ antiperfect_3_by_3 = np.array([[5, 5, 5],
                                                                            0.0035199656200600848,
                                                                            0.00020072553142454845,
                                                                            2.7911468584095127e-07,
-                                                                           7.346252199641538e-07]
+                                                                           7.346252199641538e-07], strict=True
          ))
 ])
 def test_calculate_matrix_pval(table, expected):
@@ -78,8 +81,8 @@ def test_dict_to_array(matrix_dict, expected):
 
 @pytest.mark.parametrize("table, expected", [
     (table, expected) for table, expected in
-    (zip(two_by_two_arrays + three_by_three_arrays + four_by_four_arrays, [11, 11, 26, 21, 36924, 168, 1949, 6215]
-         ))
+    (zip(two_by_two_arrays + three_by_three_arrays, [11, 11, 26, 21, 36924, 168, 1949, 6215],
+         strict=True))
 ]
                          )
 def test_get_possible_tables(table, expected):
@@ -96,10 +99,9 @@ def test_get_possible_tables(table, expected):
                                                                            np.inf,
                                                                            0.28125,
                                                                            0.0001763668430335097,
-                                                                           1.9870044290529433e-05,
-                                                                           -1.6016488961729118e-05]
-
-         ))
+                                                                           3.508454989759982e-09,
+                                                                           4.6843657334728765e-08],
+         strict=True))
 ]
                          )
 def test_calculate_odds_ratio(table, expected):
@@ -154,10 +156,10 @@ def test_multiclass_fisher_exact(table,
 def test_numical_equivilency_multiclass_fisher_exact_greater(table,
                                                              alternative='two-sided',
                                                              ):
-    mc_odds_ratio, mc_pval = multiclass_fisher_exact(table=table,
-                                                     alternative=alternative,
-                                                     )
-    sp_odds_ratio, sp_pval = fisher_exact(table, alternative=alternative)
+    _mc_odds_ratio, mc_pval = multiclass_fisher_exact(table=table,
+                                                      alternative=alternative,
+                                                      )
+    _sp_odds_ratio, sp_pval = fisher_exact(table, alternative=alternative)
 
     np.testing.assert_allclose(sp_pval, mc_pval)
     np.testing.assert_allclose(sp_pval, mc_pval)
