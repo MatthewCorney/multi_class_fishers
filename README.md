@@ -44,7 +44,7 @@ pip install git+https://github.com/MatthewCorney/multi_class_fishers.git
 ```
 
 ```
-from multiclass_fisher_exact import multiclass_fisher_exact
+from multi_class_fishers.multi_class_fishers import multiclass_fisher_exact
 
 # create a 3x3 symmetrical contingency table of counts
 table=np.array([[1, 9, 12],
@@ -52,7 +52,7 @@ table=np.array([[1, 9, 12],
                 [11, 3, 90]])
 
 # calculate the odds ratio and p-value using the default two-sided alternative hypothesis
-odds_ratio, p_value = multiclass_fisher_exact(table)
+odds_ratio, p_value = multi_class_fishers(table)
 
 # print the results
 print("Odds Ratio:", odds_ratio)
