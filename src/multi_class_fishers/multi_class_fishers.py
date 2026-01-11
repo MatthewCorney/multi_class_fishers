@@ -131,9 +131,7 @@ def _get_sum_constraint(size: int, expected_sum: int | float) -> Callable[..., b
         case 4:
             return lambda a, b, c, d: a + b + c + d == expected_sum
         case _:
-            raise ValueError(
-                f"Unsupported dimension {size}, must be one of {_SUPPORTED_DIMENSIONS}"
-            )
+            raise ValueError(f"Unsupported dimension {size}, must be one of {_SUPPORTED_DIMENSIONS}")
 
 
 def _add_constraints_for_shape(
@@ -200,9 +198,7 @@ def _get_possible_tables(table: np.ndarray) -> list[np.ndarray]:
 
     # Convert solutions to arrays
     solutions = problem.getSolutions()
-    valid_matrices: list[np.ndarray] = [
-        _dict_to_array(solution) for solution in solutions
-    ]
+    valid_matrices: list[np.ndarray] = [_dict_to_array(solution) for solution in solutions]
 
     return valid_matrices
 
@@ -266,10 +262,7 @@ def _validate_table(
 
     # Check supported dimensions
     if table.shape[0] not in _SUPPORTED_DIMENSIONS:
-        raise ValueError(
-            f"Unsupported dimension {table.shape[0]}, "
-            f"must be one of {_SUPPORTED_DIMENSIONS}"
-        )
+        raise ValueError(f"Unsupported dimension {table.shape[0]}, must be one of {_SUPPORTED_DIMENSIONS}")
 
     # Check for negative values
     if np.any(table < 0):
@@ -325,14 +318,10 @@ def _filter_pvalues_by_alternative(
     match alternative:
         case _Alternative.GREATER:
             p_values_allowed = list({x for x in p_values if x <= observed_pval})
-            logger.warning(
-                "It is recommended to use two-sided rather than %s", alternative
-            )
+            logger.warning("It is recommended to use two-sided rather than %s", alternative)
         case _Alternative.LESS:
             p_values_allowed = list({x for x in p_values if x >= observed_pval})
-            logger.warning(
-                "It is recommended to use two-sided rather than %s", alternative
-            )
+            logger.warning("It is recommended to use two-sided rather than %s", alternative)
         case _Alternative.TWO_SIDED:
             p_values_allowed = [x for x in p_values if x <= observed_pval]
 
@@ -401,15 +390,11 @@ def multiclass_fisher_exact(
     possible_tables = _get_possible_tables(validated_table)
 
     # Calculate p-values for all possible tables
-    all_pvalues = np.array([
-        _calculate_matrix_pval(t.astype(int)) for t in possible_tables
-    ])
+    all_pvalues = np.array([_calculate_matrix_pval(t.astype(int)) for t in possible_tables])
     sorted_pvalues = np.sort(all_pvalues)
 
     # Filter p-values based on alternative hypothesis
-    final_pval = _filter_pvalues_by_alternative(
-        sorted_pvalues, observed_pval, alt_enum
-    )
+    final_pval = _filter_pvalues_by_alternative(sorted_pvalues, observed_pval, alt_enum)
 
     # Calculate odds ratio
     odds_ratio = _calculate_odds_ratio(validated_table)
