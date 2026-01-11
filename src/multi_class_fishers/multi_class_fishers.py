@@ -9,10 +9,17 @@ import math
 from collections.abc import Callable
 from decimal import Decimal
 from enum import Enum
+from functools import lru_cache
 from typing import Literal
 
 import numpy as np
 from constraint import Problem
+
+
+@lru_cache(maxsize=512)
+def _cached_factorial(n: int) -> Decimal:
+    """Cached factorial computation using Decimal for precision."""
+    return Decimal(math.factorial(n))
 
 logger = logging.getLogger(__name__)
 
@@ -55,27 +62,28 @@ def _calculate_matrix_pval(table: np.ndarray) -> float:
     """
     sum_rows = table.sum(axis=0)
     sum_columns = table.sum(axis=1)
-    sum_all = table.sum()
+    sum_all = int(table.sum())
 
-    numerator: np.ndarray = np.array([], dtype=object)
-    denominator: np.ndarray = np.array([], dtype=object)
+    # Use Python lists instead of np.append (O(n) vs O(n²))
+    numerator: list[Decimal] = []
+    denominator: list[Decimal] = []
 
+    # Row and column marginal factorials go in numerator
     for item in sum_rows:
-        value = Decimal(math.factorial(int(item)))
-        numerator = np.append(numerator, value)  # type: ignore[arg-type]
+        numerator.append(_cached_factorial(int(item)))
 
     for item in sum_columns:
-        value = Decimal(math.factorial(int(item)))
-        numerator = np.append(numerator, value)  # type: ignore[arg-type]
+        numerator.append(_cached_factorial(int(item)))
 
+    # Cell factorials go in denominator
     for item in table.flat:
-        value = Decimal(math.factorial(int(item)))
-        denominator = np.append(denominator, value)  # type: ignore[arg-type]
+        denominator.append(_cached_factorial(int(item)))
 
-    factorial_value = Decimal(math.factorial(int(sum_all)))
-    denominator = np.append(denominator, factorial_value)  # type: ignore[arg-type]
+    # Total factorial goes in denominator
+    denominator.append(_cached_factorial(sum_all))
 
-    p_value = float(np.prod(numerator) / np.prod(denominator))
+    # Use math.prod for Decimal (faster than np.prod for Python objects)
+    p_value = float(math.prod(numerator) / math.prod(denominator))
     return p_value
 
 
@@ -216,17 +224,12 @@ def _calculate_odds_ratio(table: np.ndarray) -> float:
     float
         The calculated odds ratio (product of diagonal / product of off-diagonal).
     """
-    diagonal_product: list[float] = []
-    off_diagonal_product: list[float] = []
+    # Vectorized: extract diagonal and off-diagonal elements
+    diagonal = np.diag(table)
+    off_diagonal_mask = ~np.eye(table.shape[0], dtype=bool)
+    off_diagonal = table[off_diagonal_mask]
 
-    for i in range(table.shape[0]):
-        for j in range(table.shape[1]):
-            if i == j:
-                diagonal_product.append(float(table[i, j]))
-            else:
-                off_diagonal_product.append(float(table[i, j]))
-
-    odds_ratio = np.prod(diagonal_product) / np.prod(off_diagonal_product)
+    odds_ratio = np.prod(diagonal) / np.prod(off_diagonal)
     return float(odds_ratio)
 
 
@@ -317,13 +320,16 @@ def _filter_pvalues_by_alternative(
     """
     match alternative:
         case _Alternative.GREATER:
-            p_values_allowed = list({x for x in p_values if x <= observed_pval})
+            # Use np.unique for set behavior (deduplicate)
+            p_values_allowed = np.unique(p_values[p_values <= observed_pval])
             logger.warning("It is recommended to use two-sided rather than %s", alternative)
         case _Alternative.LESS:
-            p_values_allowed = list({x for x in p_values if x >= observed_pval})
+            # Use np.unique for set behavior (deduplicate)
+            p_values_allowed = np.unique(p_values[p_values >= observed_pval])
             logger.warning("It is recommended to use two-sided rather than %s", alternative)
         case _Alternative.TWO_SIDED:
-            p_values_allowed = [x for x in p_values if x <= observed_pval]
+            # No deduplication needed for two-sided
+            p_values_allowed = p_values[p_values <= observed_pval]
 
     return float(np.sum(p_values_allowed))
 
