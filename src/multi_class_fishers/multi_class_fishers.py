@@ -21,6 +21,7 @@ def _cached_factorial(n: int) -> Decimal:
     """Cached factorial computation using Decimal for precision."""
     return Decimal(math.factorial(n))
 
+
 logger = logging.getLogger(__name__)
 
 # Constants
